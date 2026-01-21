@@ -1,44 +1,36 @@
 import 'package:flutter/material.dart';
+import '../core/interfaces/cart_repository.dart';
+import '../core/services/cart_service.dart';
+import '../models/cart_item.dart';
+import '../models/product.dart';
 
 class CartProvider extends ChangeNotifier {
-  final List<Map<String, dynamic>> _items = [];
+  final ICartRepository _cartRepository;
 
-  List<Map<String, dynamic>> get items => _items;
+  CartProvider({ICartRepository? cartRepository}) 
+      : _cartRepository = cartRepository ?? CartService();
 
-  double get total => _items.fold(0, (sum, item) => sum + (item['price'] * item['quantity']));
+  List<CartItem> get items => _cartRepository.getItems();
+  double get total => _cartRepository.getTotal();
+  int get itemCount => items.fold(0, (sum, item) => sum + item.quantity);
 
-  void addItem(Map<String, dynamic> product) {
-    final existingIndex = _items.indexWhere((item) => item['name'] == product['name']);
-    
-    if (existingIndex >= 0) {
-      _items[existingIndex]['quantity']++;
-    } else {
-      _items.add({
-        'name': product['name'],
-        'price': product['price'],
-        'quantity': 1,
-        'emoji': product['emoji'] ?? '📦',
-      });
-    }
+  void addItem(Product product) {
+    _cartRepository.addItem(product);
     notifyListeners();
   }
 
   void removeItem(int index) {
-    _items.removeAt(index);
+    _cartRepository.removeItem(index);
     notifyListeners();
   }
 
   void updateQuantity(int index, int quantity) {
-    if (quantity <= 0) {
-      removeItem(index);
-    } else {
-      _items[index]['quantity'] = quantity;
-      notifyListeners();
-    }
+    _cartRepository.updateQuantity(index, quantity);
+    notifyListeners();
   }
 
   void clearCart() {
-    _items.clear();
+    _cartRepository.clearCart();
     notifyListeners();
   }
 }
