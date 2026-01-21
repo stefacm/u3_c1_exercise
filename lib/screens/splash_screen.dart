@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
-import '../routes/custom_routes.dart';
+import '../core/services/navigation_service.dart';
+import '../core/constants/app_constants.dart';
 import 'login_screen.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -14,26 +15,33 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
   late AnimationController _controller;
   late Animation<double> _fadeAnimation;
   late Animation<double> _scaleAnimation;
+  final NavigationService _navigationService = NavigationService();
 
   @override
   void initState() {
     super.initState();
-    _controller = AnimationController(duration: const Duration(milliseconds: 1500), vsync: this);
+    _initializeAnimations();
+    _startSplashTimer();
+  }
+
+  void _initializeAnimations() {
+    _controller = AnimationController(
+      duration: AppConstants.animationDuration, 
+      vsync: this,
+    );
     _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(parent: _controller, curve: Curves.easeOut),
     );
     _scaleAnimation = Tween<double>(begin: 0.8, end: 1.0).animate(
       CurvedAnimation(parent: _controller, curve: Curves.elasticOut),
     );
-    
     _controller.forward();
-    
-    Timer(const Duration(seconds: 3), () {
+  }
+
+  void _startSplashTimer() {
+    Timer(AppConstants.splashDuration, () {
       if (mounted) {
-        Navigator.pushReplacement(
-          context,
-          CustomRoutes.fade(const LoginScreen()),
-        );
+        _navigationService.navigateAndReplace(const LoginScreen());
       }
     });
   }
@@ -53,9 +61,9 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
             colors: [
-              Color(0xFF0D47A1),
-              Color(0xFF1565C0),
-              Color(0xFF1976D2),
+              AppConstants.darkBlue,
+              AppConstants.primaryBlue,
+              AppConstants.lightBlue,
             ],
           ),
         ),
@@ -71,10 +79,10 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Container(
-                        padding: const EdgeInsets.all(32),
+                        padding: const EdgeInsets.all(AppConstants.paddingXLarge),
                         decoration: BoxDecoration(
                           color: Colors.white.withOpacity(0.1),
-                          borderRadius: BorderRadius.circular(24),
+                          borderRadius: BorderRadius.circular(AppConstants.radiusLarge),
                           border: Border.all(
                             color: Colors.white.withOpacity(0.2),
                             width: 2,
@@ -86,7 +94,7 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
                           color: Colors.white,
                         ),
                       ),
-                      const SizedBox(height: 32),
+                      const SizedBox(height: AppConstants.paddingXLarge),
                       const Text(
                         'CORPORATE',
                         style: TextStyle(
@@ -96,7 +104,7 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
                           letterSpacing: 4,
                         ),
                       ),
-                      const SizedBox(height: 8),
+                      const SizedBox(height: AppConstants.paddingSmall),
                       Text(
                         'Soluciones Empresariales',
                         style: TextStyle(
